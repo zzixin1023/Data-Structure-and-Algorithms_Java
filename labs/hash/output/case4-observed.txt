@@ -1,0 +1,4 @@
+M = 180
+CORPUS: 149601 bases
+PATTERN: 149234 bases
+MASK: 38684 bases

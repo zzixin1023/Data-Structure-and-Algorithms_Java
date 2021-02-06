@@ -1,0 +1,5 @@
+M = 16
+CORPUS: 1551 bases
+PATTERN: 1702 bases
+MASK: 1079 bases
+Testing DNA test case 3

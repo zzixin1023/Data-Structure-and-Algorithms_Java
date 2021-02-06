@@ -1,0 +1,4 @@
+M = 18
+CORPUS: 90726 bases
+PATTERN: 162252 bases
+Testing DNA test case 4

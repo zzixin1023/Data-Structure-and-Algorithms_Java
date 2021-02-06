@@ -1,0 +1,104 @@
+--- TestStringTable.java	2019-07-01 03:07:00.186955589 -0500
++++ TestStringTableFast.java	2019-07-01 02:00:24.052029186 -0500
+@@ -1,19 +1,24 @@
+ package hash.test;
++import hash.StringTable;
+ 
+ import java.io.*;
+ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
++import java.net.*;
++import java.util.*;
+ 
+ import org.junit.*;
+ 
+ import hash.Record;
+-import hash.StringTable;
+ 
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertTrue;
+ import static org.junit.Assert.assertFalse;
+ 
+-public class TestStringTable {
++public class TestStringTableFast {
++
++    // same tests as TestStringTable, but uses buffers rather
++    // than files for I/O
+ 
+ 	public static StringTable table;
+ 
+@@ -22,7 +27,7 @@
+ 		table = new StringTable(4);
+ 	}
+ 
+-	
++
+ 	private String [] testStrings = {
+ 			"abcdefg",
+ 			"bcdefgh",
+@@ -180,6 +185,7 @@
+ 	}
+ 
+ 	private final String baseURL = "https://classes.engineering.wustl.edu/cse247/test/";
++
+ 	private final String[] testCases = 
+ 		{
+ 				"4 case1-corpus case1-pattern case1-mask",
+@@ -221,18 +227,15 @@
+ 		PrintStream stdout = System.out;
+ 		System.setOut(stdout);
+ 		System.out.println("Testing DNA test case " + id);
+-		try {
+-			System.setOut(new PrintStream(new FileOutputStream("labs/hash/output/case"
+-					+ id + "-observed.txt")));
+-		} catch (FileNotFoundException e) {	
+-			e.printStackTrace();
+-		}
+ 
+ 		String[] testInfo = argstring.split(" ");
+ 		for(int i=1; i<testInfo.length; i++) {
+ 			testInfo[i]= toURL(testInfo[i]);
+ 		}
+ 
++		ByteArrayOutputStream oStream = new ByteArrayOutputStream();
++		System.setOut(new PrintStream(oStream));
++
+ 		hash.Main.main(testInfo);
+ 
+ 		// reset out to print on the console window
+@@ -240,14 +243,12 @@
+ 
+ 		// now need to compare outputs
+ 		try {
+-			boolean testCase = compareOutput("labs/hash/output/case" 
+-					+ id +"-observed.txt", 
+-					"labs/hash/output/case"
+-							+ id +"-expected.txt");
++			boolean testCase = compareOutput(oStream, id);
+ 			assertTrue("The observed output for case" 
+ 					+ id +" differs from the expected output.",
+ 					testCase);
+ 		} catch (IOException e) {
++			assertTrue("There was an IO exception when comparing outputs",false);
+ 			e.printStackTrace();
+ 		}
+ 
+@@ -255,10 +256,15 @@
+ 				+ id +" matches expected output!\n");
+ 	}
+ 
+-	private boolean compareOutput(String observed, String expected) 
++	private boolean compareOutput(ByteArrayOutputStream observed, int id) 
+ 			throws IOException {
+-		BufferedReader reader1 = new BufferedReader(new FileReader(observed));
+-		BufferedReader reader2 = new BufferedReader(new FileReader(expected));
++		BufferedReader reader1 = new BufferedReader(
++				new StringReader(observed.toString()));
++
++		String expected = baseURL + "case" + id + "-expected.txt";
++		URL expectedURL = new URL(expected);
++		BufferedReader reader2 = new BufferedReader(
++				new InputStreamReader(expectedURL.openStream()));
+ 
+ 		String line1 = reader1.readLine();
+ 		String line2 = reader2.readLine();

@@ -1,0 +1,5 @@
+M = 4
+CORPUS: 31 bases
+PATTERN: 29 bases
+MASK: 29 bases
+Testing DNA test case 2
